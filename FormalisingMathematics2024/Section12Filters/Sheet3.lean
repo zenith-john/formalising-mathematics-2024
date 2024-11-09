@@ -33,9 +33,31 @@ open Set
 
 def atTop (L : Type) [LinearOrder L] (e : L) : Filter L where
   sets := {X : Set L | ∃ x : L, ∀ y, x ≤ y → y ∈ X}
-  univ_sets := sorry
-  sets_of_superset := sorry
-  inter_sets := sorry
+  univ_sets := by
+    use e
+    intro _ _
+    triv
+
+  sets_of_superset := by
+    intro x y hx hxy
+    obtain ⟨z, hz⟩ := hx
+    use z
+    intro w hw
+    specialize hz w hw
+    exact hxy hz
+
+  inter_sets := by
+    intro x y hx hy
+    obtain ⟨z, hz⟩ := hx
+    obtain ⟨w, hw⟩ := hy
+    use (max z w)
+    intro y1 hy1
+    have hzw: z ≤ max z w := by exact le_max_left z w
+    have hwz: w ≤ max z w := by exact le_max_right z w
+    specialize hz y1 (le_trans hzw hy1)
+    specialize hw y1 (le_trans hwz hy1)
+    exact ⟨hz, hw⟩
+
 /-
 
 ## the cofinite filter
@@ -62,10 +84,21 @@ that you can probably guess them yourself.
 -/
 def cofinite (α : Type) : Filter α where
   sets := {S : Set α | Sᶜ.Finite}
-  univ_sets := sorry
-  sets_of_superset := sorry
-  inter_sets := sorry
-
+  univ_sets := by
+    dsimp
+    rw[compl_univ]
+    exact finite_empty
+  sets_of_superset := by
+    intro x y hx hxy
+    rw[← compl_subset_compl] at hxy
+    dsimp
+    apply (Finite.subset hx)
+    exact hxy
+  inter_sets := by
+    intro x y hx hy
+    dsimp
+    rw[compl_inter]
+    apply Finite.union hx hy
 /-
 
 ## Harder exercises.

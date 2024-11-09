@@ -116,7 +116,7 @@ def IsHeightOnePrime
 
 -- All height one primes are principal in a UFD.
 example (R : Type) [CommRing R] [IsDomain R] [UniqueFactorizationMonoid R]
-    (P : Ideal R) : IsHeightOnePrime P → P.IsPrincipal :=
+    (P : Ideal R) : IsHeightOnePrime P → P.IsPrincipal := by
   /-
     The maths proof: let P be a height 1 prime. Then P ≠ 0, so choose
     nonzero x ∈ P. Factor x into irreducibles; by primality of P one
@@ -124,6 +124,12 @@ example (R : Type) [CommRing R] [IsDomain R] [UniqueFactorizationMonoid R]
     and (π) is prime and nonzero, so by the height 1 assumption we
     must have (π)=P.
     -/
+  unfold IsHeightOnePrime
+  intro ⟨ha, hb, hc⟩
+  have hp: ∃ a ∈ P, a ≠ 0 := by exact (Submodule.ne_bot_iff P).mp hb
+  obtain ⟨a, ⟨hap, ha⟩⟩ := hp
+  apply UniqueFactorizationMonoid.exists_prime_factors at ha
+  obtain ⟨f, hf⟩ := ha
   sorry
 
 end Section14Sheet3

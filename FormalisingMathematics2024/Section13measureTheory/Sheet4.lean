@@ -66,7 +66,10 @@ variable {μ : Measure Ω}
 Try proving the following:
 -/
 example (S T : Set Ω) (hS : μ S ≠ ∞) (hT : MeasurableSet T) :
-    μ (S ∪ T) = μ S + μ T - μ (S ∩ T) := sorry
+    μ (S ∪ T) = μ S + μ T - μ (S ∩ T) := by
+    have hp: μ (S ∪ T) = μ T + μ (S \ (S ∩ T)) := sorry
+    have hq: μ S = μ (S \ (S ∩ T)) + μ (S ∩ T) := sorry
+    sorry
 
 /-!
 ## Measurable functions
@@ -103,12 +106,21 @@ Alongside `measurable`, we also see them quite often in the mathlib, although
 all you have to know is in most cases (range is metrizable and second-countable),
 `Measurable` and `StronglyMeasurable` are equivalent.
 -/
-example : Measurable (id : Ω → Ω) := sorry
+example : Measurable (id : Ω → Ω) := by
+  intro x
+  intro hx
+  have hp: id⁻¹' x = x := by exact rfl
+  rwa[hp]
 
 example {X Y Z : Type}
     [MeasurableSpace X] [MeasurableSpace Y] [MeasurableSpace Z]
     (f : X → Y) (g : Y → Z) (hg : Measurable g) (hf : Measurable f) :
-    Measurable (g ∘ f) := sorry
+    Measurable (g ∘ f) := by
+    intro x hx
+    unfold Measurable at hf hg
+    apply hg at hx
+    apply hf at hx
+    exact hx
 
 /-!
 ## Integration
@@ -141,9 +153,9 @@ variable [NormedAddCommGroup X] [NormedSpace ℝ X] [CompleteSpace X]
 -- `∫ x in s, f x ∂μ`.
 -- Try looking in mathlib
 example {f g : Ω → X} (hf : Integrable f μ) (hg : Integrable g μ) :
-    ∫ x, f x + g x ∂μ = ∫ x, f x ∂μ + ∫ x, g x ∂μ := sorry
+    ∫ x, f x + g x ∂μ = ∫ x, f x ∂μ + ∫ x, g x ∂μ := by exact integral_add hf hg
 
-example (a : X) (s : Set Ω) : ∫ _ in s, a ∂μ = (μ s).toReal • a := sorry
+example (a : X) (s : Set Ω) : ∫ _ in s, a ∂μ = (μ s).toReal • a := by aesop
 
 -- Harder
 example

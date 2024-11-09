@@ -25,41 +25,91 @@ and also the following two new tactics:
 variable (P Q R S : Prop)
 
 example : P ↔ P := by
-  sorry
+  rfl
   done
 
 example : (P ↔ Q) → (Q ↔ P) := by
-  sorry
+  intro hpq
+  rw [hpq]
   done
 
 example : (P ↔ Q) ↔ (Q ↔ P) := by
-  sorry
+  constructor
+  intro hpq
+  rw [hpq]
+  intro hqp
+  rw [hqp]
   done
 
 example : (P ↔ Q) → (Q ↔ R) → (P ↔ R) := by
-  sorry
+  intro hpq
+  intro hqr
+  rw [hpq, hqr]
   done
 
 example : P ∧ Q ↔ Q ∧ P := by
-  sorry
+  constructor
+  intro hpq
+  cases' hpq with hp hq
+  constructor
+  exact hq
+  exact hp
+  intro hqp
+  cases' hqp with hq hp
+  constructor
+  exact hp
+  exact hq
   done
 
 example : (P ∧ Q) ∧ R ↔ P ∧ Q ∧ R := by
-  sorry
+  constructor
+  · intro hpqr
+    cases' hpqr with hpq hr
+    cases' hpq with hp hq
+    constructor
+    exact hp
+    constructor
+    exact hq
+    exact hr
+  · rintro ⟨ hp, hq, hr⟩
+    exact ⟨⟨ hp, hq⟩ ,hr⟩
   done
 
 example : P ↔ P ∧ True := by
-  sorry
+  constructor
+  · intro hp
+    constructor
+    exact hp
+    triv
+  · intro hpt
+    cases' hpt with hp t
+    exact hp
   done
 
 example : False ↔ P ∧ False := by
-  sorry
+  constructor
+  · exfalso
+  · intro hpf
+    cases' hpf with hp hf
+    exact hf
   done
 
 example : (P ↔ Q) → (R ↔ S) → (P ∧ R ↔ Q ∧ S) := by
-  sorry
+  intro hpq
+  intro hrs
+  rw [hpq]
+  rw [hrs]
   done
 
 example : ¬(P ↔ ¬P) := by
-  sorry
+  by_contra h1
+  cases' h1 with hpnp hnpp
+  by_cases h:P
+  apply hpnp at h
+  apply h
+  apply hnpp
+  exact h
+  apply h
+  apply hnpp
+  exact h
   done

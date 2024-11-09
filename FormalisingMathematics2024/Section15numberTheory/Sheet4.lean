@@ -33,6 +33,33 @@ example (n : ℕ) (hn : 0 < n) : -- remark; not going to use hn
     (169 : ℤ) ∣ 3 ^ (3 * n + 3) - 26 * n - 27 := by
   clear hn
   -- told you
-  sorry
+  induction' n with d hd
+  · simp;norm_num
+  · have hg: (27:ℤ) * (3 ^ (3 * d + 3) - 26 * d - 27) + 26 * 26 * d + 26 * 26= (3 ^ (3 * Nat.succ d + 3) - 26 * (Nat.succ d) - 27) := by
+      have hq:Nat.succ d = d + 1 := by rfl
+      rw[hq]
+      have h1: (3:ℤ)^(3 * (d + 1) + 3) = 27 * 3^(3 * d + 3) := by
+        calc
+          (3:ℤ)^(3 * (d + 1) + 3) = 3^(3 + 3 * d + 3) := by simp;ring_nf
+          _ = (3^3) * 3^(3 * d + 3) := by rw[pow_add];ring_nf
+          _ = 27 * 3^(3 * d + 3) := by norm_num
+      rw[h1]
+      rw[mul_sub, mul_sub]
+      have hq: - (27:ℤ) * (26 * d) - 27 * 27 + 26 * 26 * d + 26 * 26 = - 26 * (d + 1) - 27 := by
+        ring_nf
+      calc
+        27 * 3 ^ (3 * d + 3) - 27 * (26 * d) - 27 * 27 + 26 * 26 * d + 26 * 26 = 27 * 3 ^ (3 * d + 3) + (- (27:ℤ) * (26 * d) - 27 * 27 + 26 * 26 * ↑d + 26 * 26) := by ring_nf
+        _ = 27 * 3 ^ (3 * d + 3) + (- 26 * (d + 1) - 27) := by rw[hq]
+        _ = 27 * 3 ^ (3 * d + 3) - 26 * (d + 1) - 27 := by ring_nf
+    have h1: (169:ℤ) ∣ 27 * (3 ^ (3 * d + 3) - 26 * d - 27) := by exact Dvd.dvd.mul_left hd 27
+    have h2: (169:ℤ) ∣ 26 * 26 * d + 26 * 26 := by
+      have h3: (169:ℤ) ∣ 26 * 26 := by exact Int.dvd_of_mod_eq_zero rfl
+      have h4: (169:ℤ) ∣ 26 * 26 * d := by exact Dvd.dvd.mul_right h3 d
+      exact Int.dvd_add h4 h3
+    rw[← hg]
+    rw[add_assoc]
+    exact Int.dvd_add h1 h2
+
+
 
 end Section15Sheet4

@@ -28,7 +28,12 @@ example (X Y : Type) [MetricSpace X] [MetricSpace Y] (f : X → Y) :
 example (X Y Z : Type) [TopologicalSpace X] [TopologicalSpace Y] [TopologicalSpace Z]
     (f : X → Y) (g : Y → Z) (hf : Continuous f) (hg : Continuous g) : Continuous (g ∘ f) := by
   -- can you prove this from first principles? Start with `rw [continuous_def] at *`.
-  sorry
+  rw [continuous_def] at *
+  intro s hs
+  specialize hg s hs
+  specialize hf (g⁻¹' s) hg
+  have hp: f⁻¹'(g⁻¹' s) = g ∘ f⁻¹'s := by rfl
+  rwa[← hp]
 
 example (X Y Z : Type) [TopologicalSpace X] [TopologicalSpace Y] [TopologicalSpace Z]
     (f : X → Y) (g : Y → Z) (hf : Continuous f) (hg : Continuous g) : Continuous (g ∘ f) := by

@@ -48,7 +48,22 @@ example : f.Bijective ↔
 -- please ask. There's lots of little Lean tricks which make this
 -- question not too bad, but there are lots of little pitfalls too.
 example : (∃ g : Y → X, f ∘ g = id ∧ g ∘ f = id) → f.Bijective := by
-  sorry
+  intro ⟨g, ⟨hq, hr⟩⟩
+  constructor
+  intro a1 a2 heq
+  have hs: g (f a1) = g (f a2) := by rw[heq]
+  calc
+    a1 = (g.comp f) a1 := by rw[hr]; rfl
+    _ = g (f a1) := by rfl
+    _ = g (f a2) := by rw[hs]
+    _ = (g.comp f) a2 :=by rfl
+    _ = a2 := by rw[hr]; rfl
+
+  intro b
+  use (g b)
+  calc
+    f (g b) = (f ∘ g) b := by rfl
+    _ = b := by rw[hq]; rfl
 
 -- The other way is harder in Lean, unless you know about the `choose`
 -- tactic. Given `f` and a proof that it's a bijection, how do you
@@ -56,4 +71,19 @@ example : (∃ g : Y → X, f ∘ g = id ∧ g ∘ f = id) → f.Bijective := by
 -- `g`, and the `choose` tactic does this for you.
 -- If `hfs` is a proof that `f` is surjective, try `choose g hg using hfs`.
 example : f.Bijective → ∃ g : Y → X, f ∘ g = id ∧ g ∘ f = id := by
-  sorry
+  intro hb
+  obtain ⟨h1, h2⟩ := hb
+  choose g hg using h2
+  use g
+  constructor
+  ext a
+  specialize hg a
+  assumption
+
+  ext a
+  have hh:f ((g ∘ f) a) = f a := by
+    calc
+      f ((g ∘ f) a) = f (g (f a)) := by rfl
+      _ = f a := by rw[hg]
+  specialize h1 hh
+  assumption

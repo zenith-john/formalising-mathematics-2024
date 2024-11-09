@@ -30,18 +30,60 @@ variable (X : Type) -- Everything will be a subset of `X`
   (x y z : X) -- x,y,z are elements of `X` or, more precisely, terms of type `X`
 
 -- x,y,z are elements of `X` or, more precisely, terms of type `X`
-example : x ∉ A → x ∈ A → False := by sorry
+example : x ∉ A → x ∈ A → False := by
+  intro hx
+  exact hx
 
-example : x ∈ A → x ∉ A → False := by sorry
+example : x ∈ A → x ∉ A → False := by
+  intro hx
+  by_contra ha
+  apply ha
+  exact hx
 
-example : A ⊆ B → x ∉ B → x ∉ A := by sorry
+example : A ⊆ B → x ∉ B → x ∉ A := by
+  intro hab
+  intro hb
+  by_contra ha
+  specialize hab ha
+  apply hb
+  exact hab
 
 -- Lean couldn't work out what I meant when I wrote `x ∈ ∅` so I had
 -- to give it a hint by telling it the type of `∅`.
-example : x ∉ (∅ : Set X) := by sorry
+example : x ∉ (∅ : Set X) := by
+  by_contra hx
+  cases hx
 
-example : x ∈ Aᶜ → x ∉ A := by sorry
+example : x ∈ Aᶜ → x ∉ A := by
+  simp
 
-example : (∀ x, x ∈ A) ↔ ¬∃ x, x ∈ Aᶜ := by sorry
+example : (∀ x, x ∈ A) ↔ ¬∃ x, x ∈ Aᶜ := by
+  constructor
+  · intro hx
+    by_contra h2
+    cases' h2 with x1 h3
+    specialize hx x1
+    apply h3
+    exact hx
+  · intro hn x
+    by_contra hp
+    apply hn
+    use x
+    exact hp
 
-example : (∃ x, x ∈ A) ↔ ¬∀ x, x ∈ Aᶜ := by sorry
+example : (∃ x, x ∈ A) ↔ ¬∀ x, x ∈ Aᶜ := by
+  constructor
+  · intro hx
+    by_contra ha
+    obtain ⟨x, hxa⟩ := hx
+    specialize ha x
+    apply ha
+    exact hxa
+  · intro hn
+    by_contra hp
+    apply hn
+    intro x
+    by_contra hq
+    apply hp
+    use x
+    exact not_not_mem.mp hq

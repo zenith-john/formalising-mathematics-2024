@@ -113,4 +113,59 @@ This is the first question in Sierpinski's book.
 Hint: n+1 divides n^2-1.
 
 -/
-example (n : ℕ) (hn : 0 < n) : n + 1 ∣ n ^ 2 + 1 ↔ n = 1 := sorry
+example (n : ℕ) (hn : 0 < n) : n + 1 ∣ n ^ 2 + 1 ↔ n = 1 := by
+  have hr:(n + 1)^2 - 2 * n = n^2 + 1 := by ring_nf; refine tsub_eq_of_eq_add_rev ?h; ring
+  rw[← hr]
+  have hr: (n + 1 ∣  (n + 1)^2 - 2 * n) ↔ n + 1 ∣  2 * n := by
+    zify
+    have hp:∀k:ℤ, (k + 1 ∣ (k + 1)^2) := by intro k; exact Dvd.intro_left (Int.pow (k + 1) 1) rfl
+    have hr:∀k m n:ℤ, k + 1 ∣ m → (k + 1 ∣ m - n ↔ k + 1 ∣  - n) := by
+      intro k m n;
+      intro hkm;
+      apply dvd_iff_dvd_of_dvd_sub
+      simp
+      exact hkm
+    have hs:∀k m:ℤ, (k + 1 ∣ -m) ↔ k + 1 ∣ m := by exact fun k m ↦ Int.dvd_neg
+    specialize hr n ((n + 1)^2) (2 * n)
+    specialize hs n (2 * n)
+    specialize hp n
+    apply hr at hp
+    rw[hs] at hp
+    ring_nf at hp ⊢
+    norm_cast at hp ⊢
+    have h: 1 + n * 2 + n^2 - n * 2 = 1 + n^2 := by
+      calc
+        1 + n * 2 + n^2 - n * 2 = 1 + n^2 + n * 2 - n * 2 := by ring_nf
+        _ = 1 + n^2 := by simp
+    rw[h]
+    exact hp
+
+  rw[hr]
+  constructor
+  · intro hn
+    obtain ⟨a, ha⟩ := hn
+    rcases lt_trichotomy a 1 with (h1 | h2 | h3)
+    · have h4: a = 0 := by exact Nat.lt_one_iff.mp h1
+      rw[h4] at ha
+      simp at ha
+      rw[ha] at hn
+      exfalso
+      exact LT.lt.false hn
+    · rw[h2] at ha
+      simp at ha
+      linarith
+    · have h4: a ≥ 2 := by exact h3
+      have h5:(n + 1) * a ≥ 2 * (n + 1) := by
+        rw[mul_comm];
+        exact Nat.mul_le_mul_right (n + 1) h3
+      have h6: 2 * n > 2 * n := by
+        calc
+          2 * n = (n + 1) * a := by exact ha
+          _ ≥ 2 * (n + 1) := by exact h5
+          _ = 2 * n + 2 := by exact rfl
+          _ > 2 * n := by linarith
+      exfalso
+      exact LT.lt.false h6
+    done
+  · intro hn
+    rw[hn]

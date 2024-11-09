@@ -53,13 +53,31 @@ first.
 
 -/
 
-theorem mul_left_cancel (h : a * b = a * c) : b = c := by sorry
+theorem mul_left_cancel (h : a * b = a * c) : b = c := by
+  calc
+    b = 1 * b := by rw[one_mul]
+    _ = a⁻¹ * a * b := by rw[inv_mul_self]
+    _ = a⁻¹ * a * c := by rw[mul_assoc, h, ← mul_assoc]
+    _ = c := by rw[inv_mul_self, one_mul]
 
-theorem mul_eq_of_eq_inv_mul (h : b = a⁻¹ * c) : a * b = c := by sorry
+theorem mul_eq_of_eq_inv_mul (h : b = a⁻¹ * c) : a * b = c := by
+  have hp:  a⁻¹ * c = a⁻¹ * (a * b) := by
+    calc
+      a⁻¹ * c = b := by rw[h]
+      b = 1 * b := by rw[one_mul]
+      _ = a⁻¹ * (a * b) := by rw[← inv_mul_self, mul_assoc]
+  apply mul_left_cancel at hp
+  rw [hp]
 
-theorem mul_one (a : G) : a * 1 = a := by sorry
+theorem mul_one (a : G) : a * 1 = a := by
+  have hp: 1 = (a)⁻¹ * a := by rw[inv_mul_self]
+  apply mul_eq_of_eq_inv_mul at hp
+  exact hp
 
-theorem mul_inv_self (a : G) : a * a⁻¹ = 1 := by sorry
+theorem mul_inv_self (a : G) : a * a⁻¹ = 1 := by
+  have h: a⁻¹ = a⁻¹ * 1 := by rw[mul_one]
+  apply mul_eq_of_eq_inv_mul
+  exact h
 
 end WeakGroup
 
@@ -82,22 +100,23 @@ class BadGroup (G : Type) extends One G, Mul G, Inv G : Type where
 
 -- `Bool` is a type with two terms, `Bool.true` and `Bool.false`. See if you can make it into
 -- a bad group which isn't a group!
-instance : One Bool :=
-  ⟨sorry⟩
+instance : One Bool where
+  one := true
 
-instance : Mul Bool :=
-  ⟨sorry⟩
+instance : Mul Bool where
+  mul x _ :=
+    x
 
-instance : Inv Bool :=
-  ⟨sorry⟩
+instance : Inv Bool where
+  inv _ := true
 
 instance : BadGroup Bool where
-  mul_assoc := sorry
+  mul_assoc := by decide
   -- `decide`, might be able to do this
-  mul_one := sorry
+  mul_one := by decide
   -- decide
-  inv_mul_self := sorry
+  inv_mul_self := by decide
   -- decide
 
-example : ¬∀ a : Bool, 1 * a = a := by sorry
+example : ¬∀ a : Bool, 1 * a = a := by decide
 -- decide

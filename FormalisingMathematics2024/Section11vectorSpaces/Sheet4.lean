@@ -100,8 +100,14 @@ example (φ ψ : V →ₗ[k] W) (h : ∀ i : I, φ (B i) = ψ (B i)) : φ = ψ :
   B.ext h
 
 -- That should be all you need to do this!
-example (f : I → W) : ∃! φ : V →ₗ[k] W, ∀ i, φ (B i) = f i :=
-  sorry
+example (f : I → W) : ∃! φ : V →ₗ[k] W, ∀ i, φ (B i) = f i := by
+  constructor
+  · have _:= B.constr k f
+    use B.constr_basis k f
+    intro π hπ
+    apply B.ext
+    intro i
+    rw[hπ, B.constr_basis]
 
 -- Now say `C` is a basis of `W`, indexed by a type `J`
 variable (J : Type) (C : Basis J k W)
@@ -120,5 +126,5 @@ example : (V →ₗ[k] W) ≃ₗ[k] Matrix J I k :=
 -- check that this bijection does give what we expect.
 -- Right-click on `LinearMap.toMatrix` and then "go to definition" to find
 -- the API for `LinearMap.toMatrix`.
-example (φ : V →ₗ[k] W) (i : I) (j : J) : LinearMap.toMatrix B C φ j i = C.repr (φ (B i)) j :=
-  sorry
+example (φ : V →ₗ[k] W) (i : I) (j : J) : LinearMap.toMatrix B C φ j i = C.repr (φ (B i)) j := by
+  exact LinearMap.toMatrix_apply B C φ j i

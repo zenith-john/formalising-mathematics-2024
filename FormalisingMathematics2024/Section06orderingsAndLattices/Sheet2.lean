@@ -84,17 +84,41 @@ variable (L : Type) [Lattice L] (a b c : L)
 example : a ⊔ b = b ⊔ a := by
   -- you might want to start with `apply le_antisymm` (every lattice is a partial order so this is OK)
   -- You'll then have two goals so use `\.` and indent two spaces.
-  sorry
+  apply le_antisymm
+  · apply sup_le
+    · simp
+    · simp
+  · apply sup_le
+    · simp
+    · simp
 
 example : a ⊔ b ⊔ c = a ⊔ (b ⊔ c) := by
-  sorry
+  apply le_antisymm
+  · apply sup_le
+    · apply sup_le
+      · exact le_sup_left
+      · trans b ⊔ c
+        · simp
+        . simp
+    . trans b ⊔ c
+      · simp
+      · simp
+  · apply sup_le
+    · trans a ⊔ b <;> simp
+    · apply sup_le
+      · trans a ⊔ b <;> simp
+      · simp
 
 -- could golf this entire proof into one (long) line
 -- `a ⊓ _` preserves `≤`.
 -- Note: this is called `inf_le_inf_left a h` in mathlib; see if you can prove it
 -- directly without using this.
 example (h : b ≤ c) : a ⊓ b ≤ a ⊓ c := by
-  sorry
+  apply le_inf
+  exact inf_le_left
+  trans b
+  exact inf_le_right
+  exact h
 
 /-
 
@@ -109,11 +133,25 @@ do have inclusions though, which is what you can prove in general.
 -/
 -- `inf_le_inf_left`, proved above, is helpful here.
 example : (a ⊓ b) ⊔ (a ⊓ c) ≤ a ⊓ (b ⊔ c) := by
-  sorry
+  apply le_inf
+  apply sup_le
+  simp
+  simp
+  apply sup_le
+  trans b
+  simp; simp
+  trans c
+  simp; simp
 
 -- use `sup_le_sup_left` for this one.
 example : a ⊔ b ⊓ c ≤ (a ⊔ b) ⊓ (a ⊔ c) := by
-  sorry
+  apply sup_le
+  all_goals (try apply le_inf)
+  <;> try simp
+  trans b
+  <;> try simp
+  trans c
+  <;> try simp
 
 -- Bonus question: look up the binding powers of ⊓ and ⊔ (by using crtl-click to jump
 -- to their definitions) and figure out which brackets

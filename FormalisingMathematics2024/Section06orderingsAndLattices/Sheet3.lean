@@ -25,4 +25,42 @@ this question.
 
 example (L : Type) [Lattice L] :
     (∀ a b c : L, a ⊔ b ⊓ c = (a ⊔ b) ⊓ (a ⊔ c)) ↔ ∀ a b c : L, a ⊓ (b ⊔ c) = a ⊓ b ⊔ a ⊓ c := by
-  sorry
+  constructor
+  intro hp
+  intro a b c
+  apply le_antisymm
+  · have h: a ⊓ b ⊔ a ⊓ c = (a ⊔ a) ⊓ (a ⊔ b) ⊓ (c ⊔ a) ⊓ (c ⊔ b) := by
+      calc
+        a ⊓ b ⊔ a ⊓ c = (a ⊓ b ⊔ a) ⊓ (a ⊓ b ⊔ c) := by rw[hp]
+        _ = ((a ⊔ a) ⊓ (a ⊔ b)) ⊓ ((c ⊔ a) ⊓ (c ⊔ b)) := by
+          rw[sup_comm]
+          rw[hp]
+          have hc: a ⊓ b ⊔ c = (c ⊔ a) ⊓ (c ⊔ b) := by rw[sup_comm, hp];
+          rw[hc]
+        _ = (a ⊔ a) ⊓ (a ⊔ b) ⊓ (c ⊔ a) ⊓ (c ⊔ b) := by
+          simp
+          rw[← inf_assoc]
+          simp
+    rw[h]
+    simp
+    rw[sup_comm]
+    exact inf_le_right
+  · exact le_inf_sup
+
+  intro hp
+  intro a b c
+  apply le_antisymm
+  · exact sup_inf_le
+  · rw[hp]
+    rw[inf_comm]
+    rw[hp]
+    have hc: (a ⊔ b) ⊓ c = (c ⊓ a) ⊔ (c ⊓ b) := by
+      rw[inf_comm, hp]
+    rw[hc]
+    simp
+    constructor
+    · trans a
+      exact inf_le_right
+      exact le_sup_left
+    · rw[inf_comm]
+      exact le_sup_right

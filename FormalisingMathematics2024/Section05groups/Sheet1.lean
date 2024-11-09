@@ -51,18 +51,18 @@ example (g : G) : g⁻¹ * g = 1 :=
 -- with the name of the axiom it found. Note also that you can instead *guess*
 -- the names of the axioms. For example what do you think the proof of `1 * a = a` is called?
 example (a b c : G) : a * b * c = a * (b * c) := by
-  sorry
+  exact mul_assoc a b c
 
 -- can be found with `library_search` if you didn't know the answer already
 example (a : G) : a * 1 = a := by
-  sorry
+  exact mul_one a
 
 -- Can you guess the last two?
 example (a : G) : 1 * a = a := by
-  sorry
+  exact one_mul a
 
 example (a : G) : a * a⁻¹ = 1 := by
-  sorry
+  exact mul_inv_self a
 
 -- As well as the axioms, Lean has many other standard facts which are true
 -- in all groups. See if you can prove these from the axioms, or find them
@@ -71,26 +71,38 @@ example (a : G) : a * a⁻¹ = 1 := by
 variable (a b c : G)
 
 example : a⁻¹ * (a * b) = b := by
-  sorry
+  rw [← mul_assoc, inv_mul_self, one_mul]
 
 example : a * (a⁻¹ * b) = b := by
-  sorry
+  rw [← mul_assoc, mul_inv_self, one_mul]
 
 example {a b c : G} (h1 : b * a = 1) (h2 : a * c = 1) : b = c := by
   -- hint for this one if you're doing it from first principles: `b * (a * c) = (b * a) * c`
-  sorry
+  calc
+    b = b * 1 := by simp
+    _ = b * a * c := by rw [← h2, ← mul_assoc]
+    _ = c := by rw [h1, one_mul]
 
 example : a * b = 1 ↔ a⁻¹ = b := by
-  sorry
+  constructor
+  intro hab
+  calc
+    a⁻¹ = a⁻¹ * 1 := by rw [mul_one]
+    _ = a⁻¹ * a * b := by rw [← hab, ← mul_assoc]
+    _ = b := by rw [inv_mul_self, one_mul]
+  intro hab
+  rw [← hab, mul_inv_self]
 
 example : (1 : G)⁻¹ = 1 := by
-  sorry
+  calc
+    (1: G)⁻¹ = (1: G)⁻¹*1*1 := by rw[mul_one,mul_one]
+    _ = 1 := by rw[inv_mul_self, mul_one]
 
 example : a⁻¹⁻¹ = a := by
-  sorry
+  exact inv_inv a
 
 example : (a * b)⁻¹ = b⁻¹ * a⁻¹ := by
-  sorry
+  exact mul_inv_rev a b
 
 /-
 
@@ -110,4 +122,20 @@ example : (b⁻¹ * a⁻¹)⁻¹ * 1⁻¹⁻¹ * b⁻¹ * (a⁻¹ * a⁻¹⁻¹�
 
 -- Try this trickier problem: if g^2=1 for all g in G, then G is abelian
 example (h : ∀ g : G, g * g = 1) : ∀ g h : G, g * h = h * g := by
-  sorry
+  intro a b
+  calc
+    a * b = a * b * a * a⁻¹ := by group
+    _ = a * b * a * b * b⁻¹ * a⁻¹ := by group
+    _ = b⁻¹ * a⁻¹ := by
+      specialize h (a * b)
+      rw [← mul_assoc] at h
+      rw [h]
+      group
+    _ = b * a⁻¹ := by
+      specialize h b
+      have p: b = b⁻¹ := by exact mul_eq_one_iff_eq_inv.mp h
+      rw [← p]
+    _ = b * a := by
+      specialize h a
+      have p: a = a⁻¹ := by exact mul_eq_one_iff_eq_inv.mp h
+      rw [← p]

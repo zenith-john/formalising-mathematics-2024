@@ -69,7 +69,26 @@ There is of course much more API, but if you want to get some practice you can
 just develop some of it yourself from these two functions.
 -/
 example : (mk' N).ker = N := by
-  sorry
+  ext a
+  constructor
+  intro hp
+  have hp: (mk' N) a = 1 := by exact hp
+  have h1: (mk' N) 1 = 1 := by exact rfl
+  have h2: (mk' N) 1 = (mk' N) a := by rw[hp, h1]
+  rw[mk'_eq_mk'] at h2
+  obtain ⟨z, ⟨z1, z2⟩⟩ := h2
+  rw[one_mul] at z2
+  rwa[← z2]
+
+  intro ha
+  have hp: (mk' N) a = 1 := by
+    calc
+      (mk' N a) = (mk' N) 1 := by
+        rw[mk'_eq_mk']
+        use a⁻¹
+        exact ⟨inv_mem ha, mul_inv_self a⟩
+      _ = 1 := by exact rfl
+  exact hp
 
 /-
 # Universal properties
@@ -111,7 +130,19 @@ variable {P : Subgroup H} [P.Normal]
 def ρ (h : N.map φ ≤ P) : G ⧸ N →* H ⧸ P :=
   lift N ((mk' P).comp φ) (by
     -- we are using `lift` so we need to supply the proof that `(mk' P).comp φ` kills `N`
-    sorry
+    intro a han
+    have ha: (φ a) ∈ (N.map φ) := by exact Subgroup.mem_map_of_mem φ han
+    apply h at ha
+    have hp: (mk' P).comp φ a = 1 := by
+      calc
+        (mk' P).comp φ a = (mk' P) (φ a) := by simp
+        _ = (mk' P) 1 := by
+          rw[mk'_eq_mk' P]
+          use (φ a)⁻¹
+          constructor
+          exact inv_mem ha
+          exact mul_inv_self (φ a)
+    exact hp
   )
 
 -- Now let's prove that `ρ ∘ mk' N = mk' P ∘ φ`

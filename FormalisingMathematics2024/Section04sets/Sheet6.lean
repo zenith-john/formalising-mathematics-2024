@@ -38,25 +38,84 @@ for group theory. In Lean we use the notation `f ⁻¹' T` for this pullback.
 
 variable (X Y : Type) (f : X → Y) (S : Set X) (T : Set Y)
 
-example : S ⊆ f ⁻¹' (f '' S) := by sorry
+example : S ⊆ f ⁻¹' (f '' S) := by
+  intro x hs
+  simp
+  use x
 
-example : f '' (f ⁻¹' T) ⊆ T := by sorry
+example : f '' (f ⁻¹' T) ⊆ T := by
+  intro x hx
+  simp at hx
+  obtain ⟨p, hp⟩ := hx
+  cases' hp with ha hb
+  rw [hb] at ha
+  exact ha
 
 -- `library_search` will do this but see if you can do it yourself.
-example : f '' S ⊆ T ↔ S ⊆ f ⁻¹' T := by sorry
+example : f '' S ⊆ T ↔ S ⊆ f ⁻¹' T := by
+  constructor
+  intro hp
+  intro x hx
+  simp at hp
+  specialize hp hx
+  exact hp
+
+  intro hs
+  intro x hx
+  obtain ⟨q, ⟨hq, hq2⟩⟩ := hx
+  specialize hs hq
+  have hp: f q ∈ T := by
+    exact hs
+  rw [hq2] at hp
+  exact hp
 
 -- Pushforward and pullback along the identity map don't change anything
 -- pullback is not so hard
-example : id ⁻¹' S = S := by sorry
+example : id ⁻¹' S = S := by
+  ext x
+  constructor
+  · intro hx
+    exact hx
+  · intro hx
+    exact hx
 
 -- pushforward is a little trickier. You might have to `ext x, split`.
-example : id '' S = S := by sorry
+example : id '' S = S := by
+  ext x
+  constructor
+  · intro hx
+    obtain ⟨y, ⟨hy, hy2⟩⟩ := hx
+    have hp: y = id y := by triv
+    rwa [← hy2, ← hp]
+  · intro hx
+    use x
+    have hp: x = id x := by triv
+    exact ⟨hx, hp⟩
 
 -- Now let's try composition.
 variable (Z : Type) (g : Y → Z) (U : Set Z)
 
 -- preimage of preimage is preimage of comp
-example : g ∘ f ⁻¹' U = f ⁻¹' (g ⁻¹' U) := by sorry
+example : g ∘ f ⁻¹' U = f ⁻¹' (g ⁻¹' U) := by
+  ext x
+  triv
 
 -- preimage of preimage is preimage of comp
-example : g ∘ f '' S = g '' (f '' S) := by sorry
+example : g ∘ f '' S = g '' (f '' S) := by
+  ext x
+  constructor
+  intro h
+  obtain ⟨y, ⟨hy1, hy2⟩⟩ := h
+  have hp: f y ∈ f '' S := by
+    exact Set.mem_image_of_mem f hy1
+  use (f y)
+  constructor <;> assumption
+
+  intro hx
+  obtain ⟨y, ⟨hy1, hy2⟩⟩ := hx
+  obtain ⟨z, ⟨hz1, hz2⟩⟩ := hy1
+  use z
+  constructor
+  exact hz1
+  simp
+  rwa [hz2]

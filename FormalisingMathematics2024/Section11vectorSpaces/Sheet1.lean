@@ -151,4 +151,18 @@ example (Y : Subspace k W) : Subspace k V :=
 -- Here's an actual question at long last. If φ : V → W is a linear map,
 -- if X is a subspace of V and Y a subspace of W, prove that φ(X) ⊆ Y iff X ⊆ φ⁻¹(Y)
 example (X : Subspace k V) (Y : Subspace k W) : X.map φ ≤ Y ↔ X ≤ Y.comap φ := by
-  sorry
+  constructor
+  intro hp
+  intro a ha
+  have h: φ a ∈ Y := by
+    apply hp
+    exact Submodule.mem_map_of_mem ha
+  exact h
+
+  intro hp
+  intro a ha
+  obtain ⟨y, ⟨hx, hya⟩⟩ := ha
+  have hy2: y ∈ Submodule.comap φ Y := by
+    exact hp hx
+  rw[← hya]
+  exact hy2

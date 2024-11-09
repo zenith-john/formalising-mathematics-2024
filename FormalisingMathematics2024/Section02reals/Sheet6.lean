@@ -30,31 +30,67 @@ Good luck!
 /-- If `a(n)` tends to `t` then `37 * a(n)` tends to `37 * t`-/
 theorem tendsTo_thirtyseven_mul (a : ℕ → ℝ) (t : ℝ) (h : TendsTo a t) :
     TendsTo (fun n ↦ 37 * a n) (37 * t) := by
-  sorry
+  rw [tendsTo_def] at *
+  intro ε hε
+  obtain ⟨b, hb⟩ := h (ε/37) (by linarith)
+  use b
+  intro n hbn
+  specialize hb n hbn
+  rw [abs_lt] at *
+  constructor <;>
+  linarith
 
 /-- If `a(n)` tends to `t` and `c` is a positive constant then
 `c * a(n)` tends to `c * t`. -/
 theorem tendsTo_pos_const_mul {a : ℕ → ℝ} {t : ℝ} (h : TendsTo a t) {c : ℝ} (hc : 0 < c) :
     TendsTo (fun n ↦ c * a n) (c * t) := by
-  sorry
+  rw [tendsTo_def] at *
+  intro ε hε
+  have h1:ε/c > 0 := by exact div_pos hε hc
+  obtain ⟨b, hb⟩ := h (ε/c) h1
+  use b
+  intro n hbn
+  specialize hb n hbn
+  rw [← mul_sub, abs_mul, abs_of_pos hc]
+  exact (lt_div_iff' hc).mp hb
 
 /-- If `a(n)` tends to `t` and `c` is a negative constant then
 `c * a(n)` tends to `c * t`. -/
 theorem tendsTo_neg_const_mul {a : ℕ → ℝ} {t : ℝ} (h : TendsTo a t) {c : ℝ} (hc : c < 0) :
     TendsTo (fun n ↦ c * a n) (c * t) := by
-  sorry
+  rw [tendsTo_def] at *
+  intro ε hε
+  have h2:-c>0 := by exact neg_pos.mpr hc
+  have h1:ε/(-c)>0 := by exact div_pos hε h2
+  obtain ⟨b, hb⟩ := h (ε/(-c)) h1
+  use b
+  intro n hbn
+  specialize hb n hbn
+  rw [← mul_sub, abs_mul, abs_of_neg hc]
+  exact (lt_div_iff' h2).mp hb
 
 /-- If `a(n)` tends to `t` and `c` is a constant then `c * a(n)` tends
 to `c * t`. -/
 theorem tendsTo_const_mul {a : ℕ → ℝ} {t : ℝ} (c : ℝ) (h : TendsTo a t) :
     TendsTo (fun n ↦ c * a n) (c * t) := by
-  sorry
+  obtain hc | hc | hc := lt_trichotomy 0 c
+  · exact tendsTo_pos_const_mul h hc
+  · rw [tendsTo_def] at *
+    intro ε hε
+    use 0
+    intro n hn
+    rw [← hc]
+    simp
+    exact hε
+  · exact tendsTo_neg_const_mul h hc
+
 
 /-- If `a(n)` tends to `t` and `c` is a constant then `a(n) * c` tends
 to `t * c`. -/
 theorem tendsTo_mul_const {a : ℕ → ℝ} {t : ℝ} (c : ℝ) (h : TendsTo a t) :
     TendsTo (fun n ↦ a n * c) (t * c) := by
-sorry
+  have p1 := tendsTo_const_mul c h
+  simpa [mul_comm] using p1
 
 -- another proof of this result
 theorem tendsTo_neg' {a : ℕ → ℝ} {t : ℝ} (ha : TendsTo a t) : TendsTo (fun n ↦ -a n) (-t) := by

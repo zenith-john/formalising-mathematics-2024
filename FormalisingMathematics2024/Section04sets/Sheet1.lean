@@ -79,18 +79,56 @@ Let's prove some theorems.
 
 -/
 
-example : A ⊆ A := by sorry
+example : A ⊆ A := by rfl
 
-example : A ⊆ B → B ⊆ C → A ⊆ C := by sorry
+example : A ⊆ B → B ⊆ C → A ⊆ C := by
+  intro hab hbc
+  intro x ha
+  apply hab at ha
+  apply hbc at ha
+  exact ha
 
-example : A ⊆ A ∪ B := by sorry
+example : A ⊆ A ∪ B := by
+  intro a ha
+  left
+  exact ha
 
-example : A ∩ B ⊆ A := by sorry
+example : A ∩ B ⊆ A := by
+  intro a ⟨ha, _⟩
+  exact ha
 
-example : A ⊆ B → A ⊆ C → A ⊆ B ∩ C := by sorry
+example : A ⊆ B → A ⊆ C → A ⊆ B ∩ C := by
+  intro hab hac
+  intro a ha
+  constructor
+  apply hab at ha
+  exact ha
+  apply hac at ha
+  exact ha
 
-example : B ⊆ A → C ⊆ A → B ∪ C ⊆ A := by sorry
+example : B ⊆ A → C ⊆ A → B ∪ C ⊆ A := by
+  intro hba hca
+  intro a hbc
+  cases' hbc with hb hc
+  · apply hba at hb
+    exact hb
+  · apply hca at hc
+    exact hc
 
-example : A ⊆ B → C ⊆ D → A ∪ C ⊆ B ∪ D := by sorry
+example : A ⊆ B → C ⊆ D → A ∪ C ⊆ B ∪ D := by
+  intro hab hcd
+  intro a hac
+  cases' hac with ha hc
+  · left
+    apply hab at ha
+    exact ha
+  · right
+    apply hcd at hc
+    exact hc
 
-example : A ⊆ B → C ⊆ D → A ∩ C ⊆ B ∩ D := by sorry
+example : A ⊆ B → C ⊆ D → A ∩ C ⊆ B ∩ D := by
+  intro hab hcd a hac
+  cases' hac with ha hc
+  apply hab at ha
+  apply hcd at hc
+  constructor <;> assumption

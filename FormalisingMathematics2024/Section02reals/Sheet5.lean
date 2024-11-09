@@ -56,6 +56,19 @@ tends to `t - u`. -/
 theorem tendsTo_sub {a b : ℕ → ℝ} {t u : ℝ} (ha : TendsTo a t) (hb : TendsTo b u) :
     TendsTo (fun n ↦ a n - b n) (t - u) := by
   -- this one follows without too much trouble from earlier results.
-  sorry
+  rw [tendsTo_def] at *
+  intro ε hε
+  specialize ha (ε/2) (by linarith)
+  cases' ha with b₁ h1
+  specialize hb (ε/2) (by linarith)
+  cases' hb with b₂ h2
+  use max b₁ b₂
+  intro n hn
+  rw [max_le_iff] at hn
+  specialize h1 n hn.1
+  specialize h2 n hn.2
+  rw [abs_lt] at *
+  constructor <;>
+  linarith
 
 end Section2sheet5

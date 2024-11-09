@@ -66,14 +66,17 @@ example : G →* K :=
 -- The next three lemmas are pretty standard, but they are also in fact
 -- the axioms that show that groups form a category.
 theorem comp_id : φ.comp (MonoidHom.id G) = φ := by
-  sorry
+  ext a
+  simp
 
 theorem id_comp : (MonoidHom.id H).comp φ = φ := by
-  sorry
+  ext a
+  simp
 
 theorem comp_assoc {L : Type} [Group L] (ρ : K →* L) :
     (ρ.comp ψ).comp φ = ρ.comp (ψ.comp φ) := by
-  sorry
+  ext a
+  simp
 
 -- The kernel of a group homomorphism `φ` is a subgroup of the source group.
 -- The elements of the kernel are *defined* to be `{x | φ x = 1}`.
@@ -108,26 +111,39 @@ example (φ : G →* H) (T : Subgroup H) (x : G) : x ∈ T.comap φ ↔ φ x ∈
 -- Here are some basic facts about these constructions.
 -- Preimage of a subgroup along the identity map is the same subgroup
 example (S : Subgroup G) : S.comap (MonoidHom.id G) = S := by
-  sorry
+  ext a
+  simp
 
 -- Image of a subgroup along the identity map is the same subgroup
 example (S : Subgroup G) : S.map (MonoidHom.id G) = S := by
-  sorry
+  ext a
+  simp
 
 -- preimage preserves `≤` (i.e. if `S ≤ T` are subgroups of `H` then `φ⁻¹(S) ≤ φ⁻¹(T)`)
 example (φ : G →* H) (S T : Subgroup H) (hST : S ≤ T) : S.comap φ ≤ T.comap φ := by
-  sorry
+  intro a
+  intro ha
+  apply hST
+  exact ha
 
 -- image preserves `≤` (i.e. if `S ≤ T` are subgroups of `G` then `φ(S) ≤ φ(T)`)
 example (φ : G →* H) (S T : Subgroup G) (hST : S ≤ T) : S.map φ ≤ T.map φ := by
-  sorry
+  intro a
+  intro ⟨b, ⟨b1, b2⟩⟩
+  use b
+  constructor
+  apply hST
+  exact b1
+  exact b2
 
 -- Pulling a subgroup back along one homomorphism and then another, is equal
 -- to pulling it back along the composite of the homomorphisms.
 example (φ : G →* H) (ψ : H →* K) (U : Subgroup K) : U.comap (ψ.comp φ) = (U.comap ψ).comap φ := by
-  sorry
+  ext a
+  simp
 
 -- Pushing a subgroup along one homomorphism and then another is equal to
 --  pushing it forward along the composite of the homomorphisms.
 example (φ : G →* H) (ψ : H →* K) (S : Subgroup G) : S.map (ψ.comp φ) = (S.map φ).map ψ := by
-  sorry
+  ext a
+  simp

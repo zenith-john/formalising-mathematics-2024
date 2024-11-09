@@ -44,10 +44,10 @@ variable (a b : ℝ≥0∞)
 #check a / b
 
 -- is 1 / 0 = 0 or ∞? In ℝ it's 0 but here there's another possibility
-example : (0 : ℝ≥0∞) * ∞ = 0 := sorry
+example : (0 : ℝ≥0∞) * ∞ = 0 := by exact zero_mul ⊤
 
-example : (1 : ℝ≥0∞) / 0 = ∞ := sorry
+example : (1 : ℝ≥0∞) / 0 = ∞ := by refine ENNReal.div_zero ?h; exact one_ne_zero
 
-example (a b c : ℝ≥0∞) : (a + b) * c = a * c + b * c := sorry
+example (a b c : ℝ≥0∞) : (a + b) * c = a * c + b * c := by exact add_mul a b c
 
 end Section13Sheet3

@@ -26,9 +26,19 @@ open scoped MeasureTheory
 
 example : MeasurableSpace X where
   MeasurableSet' U := ∀ i, MeasurableSet[𝓐 i] U
-  measurableSet_empty := sorry
-  measurableSet_compl := sorry
-  measurableSet_iUnion := sorry
+  measurableSet_empty := by
+    intro i
+    exact (𝓐 i).measurableSet_empty
+  measurableSet_compl := by
+    intro x hx i
+    specialize hx i
+    exact (𝓐 i).measurableSet_compl x hx
+  measurableSet_iUnion := by
+    intro f hf i
+    apply (𝓐 i).measurableSet_iUnion
+    intro k
+    specialize hf k i
+    exact hf
 
 -- Lean knows that sigma algebras on X are a complete lattice
 -- so you could also make it like this:
@@ -41,6 +51,12 @@ example : MeasurableSpace X :=
 -- sigma algebra on X" and just use that one throughout the question.
 example (X : Type) [MeasurableSpace X]
     (f : ℕ → Set X) (hf : ∀ n, MeasurableSet (f n)) :
-    MeasurableSet (⋂ n, f n) := sorry
+    MeasurableSet (⋂ n, f n) := by
+    have hc: (⋂ n, f n)ᶜ  = (⋃ n, (f n)ᶜ) := by exact Set.compl_iInter fun i ↦ f i
+    rw[← MeasurableSet.compl_iff, hc]
+    apply MeasurableSet.iUnion
+    intro b
+    specialize hf b
+    rwa[MeasurableSet.compl_iff]
 
 end Section13Sheet2

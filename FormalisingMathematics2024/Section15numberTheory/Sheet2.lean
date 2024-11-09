@@ -26,7 +26,12 @@ Bhavik (last year) managed to figure out how to do this.
 
 -/
 -- This isn't so hard
-theorem lemma1 (x : ℤ) : x - 3 ∣ x ^ 3 - 3 ↔ x - 3 ∣ 24 := sorry
+theorem lemma1 (x : ℤ) : x - 3 ∣ x ^ 3 - 3 ↔ x - 3 ∣ 24 := by
+  have hx: x - 3 ∣ (x - 3) * (x^2 + 3 * x + 9) := by
+    exact Int.dvd_mul_right (x - 3) (x ^ 2 + 3 * x + 9)
+  have hp: x^3 - 3 = (x - 3) * (x^2 + 3 * x + 9) + 24 := by ring
+  rw[hp]
+  exact Int.dvd_add_right hx
 
 theorem int_dvd_iff (x : ℤ) (n : ℤ) (hn : n ≠ 0) : x ∣ n ↔ x.natAbs ∈ n.natAbs.divisors := by
   simp [hn]

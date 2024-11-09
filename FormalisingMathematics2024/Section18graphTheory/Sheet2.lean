@@ -147,7 +147,19 @@ example : G.Reachable v w ↔ Nonempty (G.Walk v w) :=
 
 -- true by definition
 -- Can you show that `G.reachable` is an equivalence relation?
-example : Equivalence G.Reachable := by sorry
+example : Equivalence G.Reachable := by
+  constructor
+  intro x
+  use (SimpleGraph.Walk.nil' x)
+
+  intro x y hxy
+  obtain ⟨p⟩ := hxy
+  use p.reverse
+
+  intro x y z hxy hyz
+  obtain ⟨p⟩ := hxy
+  obtain ⟨q⟩ := hyz
+  use (Walk.append p q)
 
 -- A graph is "preconnected" if `G.reachable v w` is true for any `v w : V`.
 -- Note that this includes the empty graph with `V` empty, for silly logic reasons.

@@ -76,16 +76,96 @@ noncomputable example (R : Type) [CommRing R] [IsDomain R] (φ : R → ℕ)
   let φ' : R → ℕ := fun r => if r = 0 then 0 else 1 + φ r
   have h' (a b : R) : ∃ q r : R,
     a = b * q + r ∧ (b = 0 ∧ q = 0 ∧ r = a ∨ b ≠ 0 ∧ φ' r < φ' b)
-  · sorry
+  · by_cases hb: b ≠ 0
+    have hb2:= hb
+    specialize h a b
+    apply h at hb
+    obtain ⟨q,r,hr⟩ := hb
+    use q
+    use r
+    constructor
+    exact hr.1
+    right
+    refine ⟨hb2, ?_⟩
+    cases' hr.2 with hl hR
+    · specialize h0 b q hb2
+      rw[hl]
+      have hp: φ' 0 = 0 := by exact if_pos rfl
+      rw[hp]
+      have hp: φ' b = 1 + φ b := by exact if_neg hb2
+      rw[hp]
+      simp
+    · have hp: φ' b = 1 + φ b := by exact if_neg hb2
+      rw[hp]
+      by_cases hr:r=0
+      have hp: φ' r = 0 := by exact if_pos hr
+      rw[hp]
+      simp
+      have hp: φ' r = 1 + φ r := by exact if_neg hr
+      rw[hp]
+      simp
+      exact hR
+    · have hb:b=0 := by by_contra hp; apply hb;exact hp
+      use 0
+      use a
+      constructor
+      norm_num
+      left
+      exact ⟨hb, rfl, rfl⟩
+
   choose quot rem h'' using h'
   exact
     { quotient := quot
-      quotient_zero := sorry
+      quotient_zero := by
+        intro a
+        specialize h'' a 0
+        obtain ⟨_, hc⟩ := h''
+        cases' hc with hd he
+        exact hd.2.1
+        by_contra
+        obtain ⟨hf, _⟩ := he
+        exact hf rfl
       remainder := rem
-      quotient_mul_add_remainder_eq := sorry
+      quotient_mul_add_remainder_eq := by
+        intro a b
+        specialize h'' a b
+        have h1: a = b * quot a b + rem a b := by exact h''.left
+        rw[← h1]
+
       r := fun a b => φ' a < φ' b
-      r_wellFounded := sorry
-      remainder_lt := sorry
-      mul_left_not_lt := sorry }
+      r_wellFounded := by refine WellFounded.onFun ?_; exact wellFounded_lt
+      remainder_lt := by
+        intro a b hb
+        specialize h'' a b
+        obtain ⟨_, hc⟩ := h''
+        cases' hc with hd he
+        obtain ⟨hf, _, _⟩ := hd
+        by_contra
+        apply hb
+        exact hf
+        exact he.2
+      mul_left_not_lt := by
+        intro a b hb
+        specialize h0 a b
+        by_contra hp
+        by_cases ha:a=0
+        rw[ha] at hp
+        rw[zero_mul] at hp
+        exact LT.lt.false hp
+
+        have hr: φ' a = 1 + φ a := by exact if_neg ha
+        have hq: φ' (a * b) = 1 + φ (a * b) := by
+          have hab: (a * b) ≠ 0 := by exact mul_ne_zero ha hb
+          exact if_neg hab
+        apply h0 at ha
+        apply ha at hb
+        rw[hr, hq] at hp
+        simp at hp
+        have hphi: φ a < φ a := by
+          calc
+            φ a ≤ φ (a * b) := by exact hb
+            _ < φ a := by exact hp
+        exact LT.lt.false hphi
+      }
 
 end Section14Sheet2
